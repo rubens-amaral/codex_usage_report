@@ -3,6 +3,7 @@ package parser
 import (
 	"bufio"
 	"encoding/json"
+	"math"
 	"os"
 	"path/filepath"
 
@@ -56,12 +57,24 @@ func ParseFile(filePath string, debug bool) ([]model.TimelineEntry, []model.Time
 		}
 
 		rl := logLine.Payload.RateLimits
-		p := int(rl.PrimaryUsedPercent)
-		s := int(rl.SecondaryUsedPercent)
 
-		if p == 0 && s == 0 {
+		primaryRaw := rl.Primary.UsedPercent
+		if primaryRaw == 0 {
+			primaryRaw = rl.PrimaryUsedPercent
+		}
+
+		secondaryRaw := rl.Secondary.UsedPercent
+		if secondaryRaw == 0 {
+			secondaryRaw = rl.SecondaryUsedPercent
+		}
+
+
+		if primaryRaw == 0 && secondaryRaw == 0 {
 			continue
 		}
+
+		p := toDisplayPercent(primaryRaw)
+		s := toDisplayPercent(secondaryRaw)
 
 		total := logLine.Payload.Info.TotalTokenUsage.TotalTokens
 		last := logLine.Payload.Info.LastTokenUsage.TotalTokens
@@ -97,3 +110,9 @@ func ParseFile(filePath string, debug bool) ([]model.TimelineEntry, []model.Time
 	return timelineFull, timelineClean, maxTotal, sumLast, nil
 }
 
+func toDisplayPercent(value float64) int {
+	if value <= 1 {
+		value *= 100
+	}
+	return int(math.Round(value))
+}

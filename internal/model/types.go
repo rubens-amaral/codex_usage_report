@@ -2,9 +2,17 @@ package model
 
 // Common structures used across the project (shared by parser and timeline)
 
+type RateLimitDetail struct {
+	UsedPercent float64 `json:"used_percent"`
+}
+
 type RateLimits struct {
-	PrimaryUsedPercent   float64 `json:"primary_used_percent"`
-	SecondaryUsedPercent float64 `json:"secondary_used_percent"`
+
+	Primary              RateLimitDetail `json:"primary"`
+	Secondary            RateLimitDetail `json:"secondary"`
+	PrimaryUsedPercent   float64         `json:"primary_used_percent"`
+	SecondaryUsedPercent float64         `json:"secondary_used_percent"`
+
 }
 
 type TokenCount struct {
@@ -31,4 +39,3 @@ type TimelineEntry struct {
 	Primary   int
 	Secondary int
 }
-
